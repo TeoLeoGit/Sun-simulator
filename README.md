@@ -9,6 +9,8 @@
 ## General info
 This project is created to simulate the altitude and position of the sun base on the coordinates of a location on Earth at a specific time in a day of a year. 
 
+This project was created in Unity Editor version 2021.3.10f1.
+
 ## Background
 To calculate and simulate the altitude and position of the Sun at a coordinate on Earth, we need to measure the **elevation angle** and the **azimuth angle** of the Sun.
 * **Elevation angle**: The solar elevation is the angular distance between the imaginary horizontal plane on which you are standing and the sun in the sky. It is also known as the solar latitude angle and measured in degrees. In simple words, it tells at what height the sun is in the sky. In the morning and evening, the sun is low in the sky, near the horizon. So, the solar elevation is close to 0°, whereas, at solar noon, the solar elevation angle is highest since the sun is overhead.
@@ -91,9 +93,90 @@ For more information, you can check the links listed below:
 * Solar hour angle: https://solarsena.com/solar-hour-angle-calculator-formula/
 * Solar declination angle: https://solarsena.wpengine.com/solar-declination-angle-calculator/
 * Solar elevation angle: https://solarsena.wpengine.com/solar-elevation-angle-altitude/
-* Solar azimuth angle:https://solarsena.com/solar-azimuth-angle-calculator-solar-panels/
+* Solar azimuth angle: https://solarsena.com/solar-azimuth-angle-calculator-solar-panels/
 
 ## Set up
+
+* Setting up the objects.
+
+ ![Setup objects](https://github.com/TeoLeoGit/Sun-simulator/blob/main/Documents/Setup%20objects.PNG)
+ 
+* Setting up the directions: The z-axis direction will point North, therefore the opposite direction will be South. The x-axis direction will point East, therefore the opposite direction will be West. And the y-axis will be the altitude.
+
+ ![Setup directions](https://github.com/TeoLeoGit/Sun-simulator/blob/main/Documents/Setup%20directions.png)
+ 
+* Setting up the UI: Including input fields for datetime and coordinate, a button to execute the calculating function and show the result on screen. A component named **InputManager** is attached to the UICanvas for validating inputs from the user.
+
+ ![Setup UIs](https://github.com/TeoLeoGit/Sun-simulator/blob/main/Documents/Setup%20UI.png)
+ 
+### Implementing the formulas
+
+The formulas to calculate all the needed variables for measuring the altitude and position of the Sun were implemented in the class named **Polar** as below:
+
+```csharp
+    float CalculateSolarHourAngle(int hour, int minute) //Formula to calculate the hour angle
+    {
+        float localSolarTime = hour * 60 + minute;
+        float solarHourAngle = 15 * (localSolarTime / 60 - 12);
+        return solarHourAngle;
+    }
+
+    float CalculateDeclinationAngle(int dayOfYear) //Formula to calculate the declination angle
+    {
+        int daySinceJan1st = dayOfYear - 1;
+        float declinationAngle = -23.44f * Mathf.Cos(360f / 365f * (daySinceJan1st + 10) * Mathf.PI / 180f);
+        return declinationAngle;
+    }
+
+    float CalculateElevationAngle(float declinationAngle, float latitude, float solarHourAngle) //Formula to calculate the Elevation angle
+    {
+        //Convert from degree to radian
+        declinationAngle = declinationAngle * Mathf.PI / 180f;
+        latitude = latitude * Mathf.PI / 180f;
+        solarHourAngle = solarHourAngle * Mathf.PI / 180f;
+
+        float sinOfElevationAngle = Mathf.Sin(latitude) * Mathf.Sin(declinationAngle) + Mathf.Cos(latitude) * Mathf.Cos(declinationAngle) * Mathf.Cos(solarHourAngle);
+        return Mathf.Asin(sinOfElevationAngle) * (180f / Mathf.PI);
+    }
+
+    float CalculateSolarAzimuthAngle(float declinationAngle, float latitude, float hourAngle, float elevationAngle) //Formula to calculate the azimuth angle
+    {
+        //Convert from degree to radian
+        declinationAngle = declinationAngle * Mathf.PI / 180f;
+        latitude = latitude * Mathf.PI / 180f;
+        hourAngle = hourAngle * Mathf.PI / 180f;
+        elevationAngle = elevationAngle * Mathf.PI / 180f;
+
+        float cosOfAzimuthAngle = (Mathf.Sin(declinationAngle) * Mathf.Cos(latitude) - Mathf.Cos(declinationAngle) * Mathf.Sin(latitude) * Mathf.Cos(hourAngle)) / Mathf.Cos(elevationAngle);
+        if (cosOfAzimuthAngle < -1 || cosOfAzimuthAngle > 1) cosOfAzimuthAngle = Mathf.Round(cosOfAzimuthAngle); //The fomula may return odd value like -1.00001/1.00001 
+        float azimuthAngle = Mathf.Acos(cosOfAzimuthAngle) * (180f / Mathf.PI);
+        if (hourAngle > 0f) azimuthAngle = 360f - azimuthAngle;
+        return azimuthAngle;
+    }
+```
+The function that takes the inputs from the user and measures the altitude and position of the Sun (based on a simulated horizon line length, in this project I settled the length to 20) was implemented in the same class.
+
+```csharp
+    public void SimulatePosition(int dayOfYear, int hour, int minute, float longitude, float latitude, out float elevationAngle, out float azimuthAngle, out Vector3 polarPosition)
+    {
+        float solarHourAngle = CalculateSolarHourAngle(hour, minute);
+        float declinationAngle = CalculateDeclinationAngle(dayOfYear);
+        elevationAngle = CalculateElevationAngle(declinationAngle, latitude, solarHourAngle);
+        azimuthAngle = CalculateSolarAzimuthAngle(declinationAngle, latitude, solarHourAngle, elevationAngle);
+        
+        //Find the coordinates on XZ, center is (0, 0)
+        float x = horizonLineLength * Mathf.Sin(azimuthAngle * Mathf.PI / 180f);
+        float z = horizonLineLength * Mathf.Cos(azimuthAngle * Mathf.PI / 180f);
+
+        //Find the height (y)
+        float y = horizonLineLength * Mathf.Tan(elevationAngle * Mathf.PI / 180f);
+
+        this.transform.position = new Vector3(x, y, z);
+        polarPosition = transform.position;
+        lightSource.LookAt(Vector3.zero);
+
+    }
+```
 
 ## Result
 
