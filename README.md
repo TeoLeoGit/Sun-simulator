@@ -178,5 +178,38 @@ The function that takes the inputs from the user and measures the altitude and p
     }
 ```
 
-## Result
+The formulas didn't need longitude as a variable, I will put more research on this in the near future (if I get hired).
 
+After measuring all the angles, we can calculate the altitude and position of the Sun with a simulated horizon line based on the geometry study of azimuth angle and elevation angle.
+
+  ![Position of the Sun](https://keisan.casio.com/keisan/lib/real/system/2006/1224682277/anglefigure.gif)
+
+```csharp
+  //Find the coordinates on XZ, center is (0, 0)
+  float x = horizonLineLength * Mathf.Sin(azimuthAngle * Mathf.PI / 180f);
+  float z = horizonLineLength * Mathf.Cos(azimuthAngle * Mathf.PI / 180f);
+
+  //Find the height (y)
+  float y = horizonLineLength * Mathf.Tan(elevationAngle * Mathf.PI / 180f);
+```
+
+Assume that the lightning direction will be the direction from the solar to the pillar. We just need the light source to look at the coordinate (0, 0) (where the pillar at) and then we can simulate the shadow direction and length of the pillar.
+
+```csharp
+  lightSource.LookAt(Vector3.zero);
+```
+
+## Result
+Here are some test results I conducted with the same date and coordinate inputs and different times in the day.
+
+* At 6:30 the Sun rises in the East.
+
+  ![Position of the Sun](https://github.com/TeoLeoGit/Sun-simulator/blob/main/Documents/Sun%206h30.PNG)
+
+* At 12:00 the Sun reaches the highest altitude.
+
+  ![Position of the Sun](https://github.com/TeoLeoGit/Sun-simulator/blob/main/Documents/Sun%2012h.PNG)
+
+* At 17:00 the Sun sets in the West.
+
+  ![Position of the Sun](https://github.com/TeoLeoGit/Sun-simulator/blob/main/Documents/Sun%2017h.PNG)
