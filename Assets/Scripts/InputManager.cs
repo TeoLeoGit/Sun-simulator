@@ -15,6 +15,7 @@ public class InputManager : MonoBehaviour
     [SerializeField] InputField yearInput;
     [SerializeField] InputField hourInput;
     [SerializeField] InputField minuteInput;
+    [SerializeField] Text resultTxt;
 
     [SerializeField] Button excBtn;
 
@@ -22,22 +23,47 @@ public class InputManager : MonoBehaviour
     {
         excBtn.onClick.AddListener(() =>
         {
-            string dateInput = monthInput.text + "/" + dayInput.text + "/" +yearInput.text;
-            print("Check intput: " + dateInput);
+            resultTxt.text = "";
+            string dateInput = monthInput.text + "/" + dayInput.text + "/" + yearInput.text;
             DateTime validDate;
             float validLongitude, validLatitude;
             int validHour, validMinute;
-            if (DateTime.TryParse(dateInput, out validDate) && float.TryParse(longitudeInput.text, out validLongitude)
-                && float.TryParse(latitudeInput.text, out validLatitude) && int.TryParse(hourInput.text, out validHour)
-                && int.TryParse(minuteInput.text, out validMinute))
+            if (DateTime.TryParse(dateInput, out validDate))
             {
-                solar.SimulatePosition(validDate.DayOfYear, validHour, validMinute, validLongitude, validLatitude);
-            }
+                if (float.TryParse(longitudeInput.text, out validLongitude) && float.TryParse(latitudeInput.text, out validLatitude))
+                {
+                    if ( -180f <= validLongitude && validLongitude <= 180f && validLatitude >= -90f && validLatitude <= 90f)
+                    {
+                        if (int.TryParse(hourInput.text, out validHour) && int.TryParse(minuteInput.text, out validMinute))
+                        {
+                            if (validHour >= 0 && validHour <= 24 && validMinute >= 0 && validMinute <= 59)
+                            {
+                                solar.SimulatePosition(validDate.DayOfYear, validHour, validMinute, validLongitude, validLatitude, out float elevationAngle, out float azimuthAngle, out Vector3 polarPosition);
+                                resultTxt.text = "Elevation angle: " + elevationAngle.ToString("0.0000") + "\n" + "Azimuth angle: " + azimuthAngle.ToString("0.0000") 
+                                        + "\n" + "Solar coordinate: " + "( " + polarPosition.x + ", " + polarPosition.z + " )" + "\nSolar altitude: " + polarPosition.y + "\nSimulate horizone line length: " + solar.SimulateHorizonLineLength;
+                            }
+                            else
+                                resultTxt.text += "Invalid time in day!\n";
+                        }
+                        else
+                        {
+                            resultTxt.text += "Invalid time in day!\n";
+                        }
+                    }
+                    else
+                    {
+                        resultTxt.text += "Invalid coordinate!\n";
+                    }
+                }
+                else
+                {
+                    resultTxt.text += "Invalid coordinate!\n";
+                }
+            } 
             else
             {
-                print("Input error!");
+                resultTxt.text += "Invalid datetime!\n";
             }
-            
         });
     }
 }
