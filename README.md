@@ -154,7 +154,7 @@ The formulas to calculate all the needed variables for measuring the altitude an
         return azimuthAngle;
     }
 ```
-The function that takes the inputs from the user and measures the altitude and position of the Sun (based on a simulated distance from Earth to the Sun, in this project I settled the distance to 35) was implemented in the same class.
+The function that takes the inputs from the user and measures the altitude and position of the Sun (based on a simulated distance from Earth to the Sun, in this project I settled the distance to 30) was implemented in the same class.
 
 ```csharp
     public void SimulatePosition(int dayOfYear, int hour, int minute, float longitude, float latitude, out float elevationAngle, out float azimuthAngle, out Vector3 polarPosition)
