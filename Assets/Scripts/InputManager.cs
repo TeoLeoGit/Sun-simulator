@@ -40,7 +40,7 @@ public class InputManager : MonoBehaviour
                             {
                                 solar.SimulatePosition(validDate.DayOfYear, validHour, validMinute, validLongitude, validLatitude, out float elevationAngle, out float azimuthAngle, out Vector3 polarPosition);
                                 resultTxt.text = "Elevation angle: " + elevationAngle.ToString("0.0000") + "\n" + "Azimuth angle: " + azimuthAngle.ToString("0.0000") 
-                                        + "\n" + "Solar coordinate: " + "( " + polarPosition.x + ", " + polarPosition.z + " )" + "\nSolar altitude: " + polarPosition.y + "\nSimulate horizone line length: " + solar.SimulateHorizonLineLength;
+                                        + "\n" + "Solar coordinate: " + "( " + polarPosition.x + ", " + polarPosition.z + " )" + "\nSolar altitude: " + polarPosition.y + "\nSimulated distance (to the Sun): " + solar.SimulateDistance;
                             }
                             else
                                 resultTxt.text += "Invalid time in day!\n";
