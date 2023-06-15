@@ -154,7 +154,7 @@ The formulas to calculate all the needed variables for measuring the altitude an
         return azimuthAngle;
     }
 ```
-The function that takes the inputs from the user and measures the altitude and position of the Sun (based on a simulated horizon line length, in this project I settled the length to 20) was implemented in the same class.
+The function that takes the inputs from the user and measures the altitude and position of the Sun (based on a simulated distance from Earth to the Sun, in this project I settled the distance to 35) was implemented in the same class.
 
 ```csharp
     public void SimulatePosition(int dayOfYear, int hour, int minute, float longitude, float latitude, out float elevationAngle, out float azimuthAngle, out Vector3 polarPosition)
@@ -164,12 +164,13 @@ The function that takes the inputs from the user and measures the altitude and p
         elevationAngle = CalculateElevationAngle(declinationAngle, latitude, solarHourAngle);
         azimuthAngle = CalculateSolarAzimuthAngle(declinationAngle, latitude, solarHourAngle, elevationAngle);
         
+        //Find the height (y)
+        float y = distanceToEarth * Mathf.Sin(elevationAngle * Mathf.PI / 180f);
+
         //Find the coordinates on XZ, center is (0, 0)
+        float horizonLineLength = distanceToEarth* Mathf.Cos(elevationAngle * Mathf.PI / 180f);
         float x = horizonLineLength * Mathf.Sin(azimuthAngle * Mathf.PI / 180f);
         float z = horizonLineLength * Mathf.Cos(azimuthAngle * Mathf.PI / 180f);
-
-        //Find the height (y)
-        float y = horizonLineLength * Mathf.Tan(elevationAngle * Mathf.PI / 180f);
 
         this.transform.position = new Vector3(x, y, z);
         polarPosition = transform.position;
@@ -185,12 +186,13 @@ After measuring all the angles, we can calculate the altitude and position of th
   ![Position of the Sun](https://keisan.casio.com/keisan/lib/real/system/2006/1224682277/anglefigure.gif)
 
 ```csharp
+  //Find the height (y)
+  float y = distanceToEarth * Mathf.Sin(elevationAngle * Mathf.PI / 180f);
+
   //Find the coordinates on XZ, center is (0, 0)
+  float horizonLineLength = distanceToEarth* Mathf.Cos(elevationAngle * Mathf.PI / 180f);
   float x = horizonLineLength * Mathf.Sin(azimuthAngle * Mathf.PI / 180f);
   float z = horizonLineLength * Mathf.Cos(azimuthAngle * Mathf.PI / 180f);
-
-  //Find the height (y)
-  float y = horizonLineLength * Mathf.Tan(elevationAngle * Mathf.PI / 180f);
 ```
 
 Assume that the lightning direction will be the direction from the solar to the pillar. We just need the light source to look at the coordinate (0, 0) (where the pillar at) and then we can simulate the shadow direction and length of the pillar.
