@@ -1789,7 +1789,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 39.3, y: -20}
+  m_AnchoredPosition: {x: 39.30005, y: -20}
   m_SizeDelta: {x: 66.7, y: 20.2}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &774343577
@@ -2613,7 +2613,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 542b992c95f71e64c8a85c266c84dd38, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  horizonLineLength: 20
+  distanceToEarth: 30
   lightSource: {fileID: 705507995}
 --- !u!1 &1069903056
 GameObject:

@@ -6,14 +6,14 @@ using UnityEngine;
 public class Polar : MonoBehaviour
 {
     //Formulas
-    [SerializeField] float horizonLineLength;
+    [SerializeField] float distanceToEarth;
     [SerializeField] Transform lightSource;
 
-    public float SimulateHorizonLineLength
+    public float SimulateDistance
     {
         get
         {
-            return horizonLineLength;
+            return distanceToEarth;
         }
     }
     //Measuring unit: degree
@@ -75,15 +75,13 @@ public class Polar : MonoBehaviour
         elevationAngle = CalculateElevationAngle(declinationAngle, latitude, solarHourAngle);
         azimuthAngle = CalculateSolarAzimuthAngle(declinationAngle, latitude, solarHourAngle, elevationAngle);
 
-        /*print("Elevation angle: " + elevationAngle + " - Decline angle: " + declinationAngle);
-        print("Azimuth: " + azimuthAngle + " - Solar hour angle: " + solarHourAngle);*/
+        //Find the height (y)
+        float y = distanceToEarth * Mathf.Sin(elevationAngle * Mathf.PI / 180f);
 
         //Find the coordinates on XZ, center is (0, 0)
+        float horizonLineLength = distanceToEarth* Mathf.Cos(elevationAngle * Mathf.PI / 180f);
         float x = horizonLineLength * Mathf.Sin(azimuthAngle * Mathf.PI / 180f);
         float z = horizonLineLength * Mathf.Cos(azimuthAngle * Mathf.PI / 180f);
-
-        //Find the height (y)
-        float y = horizonLineLength * Mathf.Tan(elevationAngle * Mathf.PI / 180f);
 
         this.transform.position = new Vector3(x, y, z);
         polarPosition = transform.position;
